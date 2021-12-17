@@ -1,0 +1,15 @@
+{
+    "files.associations": {
+        "fcntl.h": "c",
+        "unistd.h": "c",
+        "types.h": "c",
+        "stdio.h": "c",
+        "stdlib.h": "c",
+        "getopt.h": "c",
+        "ioctl.h": "c",
+        "videodev2.h": "c",
+        "video.h": "c",
+        "errno.h": "c",
+        "stat.h": "c"
+    }
+}
