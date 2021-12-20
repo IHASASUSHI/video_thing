@@ -50,7 +50,6 @@ struct v4l2_buffer get_frame(void) {
     fd_set fds;
     struct timeval tv;
     int r;
-    struct v4l2_buffer pastbuf;
     struct v4l2_buffer buf;
     unsigned int i;
 
@@ -97,11 +96,10 @@ struct v4l2_buffer get_frame(void) {
                     break;
 
             assert(i < n_buffers);
-            pastbuf = buf;
 
             if (-1 == xioctl(fd, VIDIOC_QBUF, &buf))
                 errno_exit("VIDIOC_QBUF");
-            return pastbuf;
+            return buf;
         }
         /* EAGAIN - continue select loop. */
     }
