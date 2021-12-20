@@ -111,8 +111,6 @@ static void stop_capturing(void) {
     type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     if (-1 == xioctl(fd, VIDIOC_STREAMOFF, &type))
         errno_exit("VIDIOC_STREAMOFF");
-    uninit_device();
-    close_device();
 }
 
 static void start_capturing(void) {
@@ -326,7 +324,7 @@ int main(int argc, char **argv) {
     frame = get_frame();
     fwrite((void *)frame.m.userptr, frame.bytesused, 1, fptr);
     printf("done writing\n");
-    stop_capturing();
+    close_device();
     fclose(fptr);
     fprintf(stderr, "\\n");
     return 0;
