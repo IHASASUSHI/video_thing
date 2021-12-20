@@ -322,7 +322,7 @@ int main(int argc, char **argv) {
     printf("recieved data\n");
     frame = get_frame();
     printf("%d\n", frame.length);
-    fwrite((void *)frame.m.userptr, frame.bytesused, 1, fptr);
+    fwrite((void *)frame.m.userptr, frame.length, 1, fptr);
     printf("done writing\n");
     close_device();
     fclose(fptr);
