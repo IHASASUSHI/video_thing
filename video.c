@@ -322,8 +322,10 @@ int main(int argc, char **argv) {
     struct v4l2_buffer frame;
 
     open_device(dev_name);
+    printf("recieved data\n");
     frame = get_frame();
     fwrite((void *)frame.m.userptr, frame.bytesused, 1, fptr);
+    printf("done writing\n");
     stop_capturing();
     fclose(fptr);
     fprintf(stderr, "\\n");
