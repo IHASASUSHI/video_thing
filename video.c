@@ -303,7 +303,7 @@ int main(int argc, char **argv) {
     init_device();
     start_capturing();
     frame = get_frame();
-    fwrite(frame.m.userptr, frame.bytesused, 1, fptr);
+    fwrite((void *) frame.m.userptr, frame.bytesused, 1, fptr);
     stop_capturing();
     uninit_device();
     close_device();
