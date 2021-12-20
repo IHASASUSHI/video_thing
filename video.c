@@ -238,7 +238,7 @@ static void init_device(void) {
     fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     fmt.fmt.pix.width = 3280;
     fmt.fmt.pix.height = 2464;
-    fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;
+    fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_JPEG;
     fmt.fmt.pix.field = V4L2_FIELD_INTERLACED;
 
     if (-1 == xioctl(fd, VIDIOC_S_FMT, &fmt)) {
