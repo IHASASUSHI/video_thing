@@ -240,11 +240,31 @@ static void init_device(void) {
     CLEAR(fmt);
     fmt.fmt.pix.width = 3280;
     fmt.fmt.pix.height = 2464;
-    fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;
+    fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_JPEG;
     fmt.fmt.pix.field = V4L2_FIELD_INTERLACED;
 
-    if (-1 == xioctl(fd, VIDIOC_S_FMT, &fmt))
+    if (-1 == xioctl(fd, VIDIOC_S_FMT, &fmt)) {
+        switch (errno) {
+            case EAGAIN:
+                printf("EAGAIN\n");
+                break;
+
+            case EINVAL:
+                printf("EINVAL, fmt.type field is invalid\n");
+                break;
+
+            case EBADR:
+                printf("EBADR\n");
+                break;
+
+            case EBUSY:
+                printf("EBUSY\n");
+                break;
+
+                /* fall through */
+        }
         errno_exit("VIDIOC_S_FMT");
+    }
     /*
     Note VIDIOC_S_FMT may change width and height.
     */
