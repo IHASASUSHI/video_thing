@@ -72,36 +72,34 @@ struct v4l2_buffer get_frame(void) {
         exit(EXIT_FAILURE);
     }
 
-    for (;;) {
-        CLEAR(buf);
+    CLEAR(buf);
 
-        buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-        buf.memory = V4L2_MEMORY_USERPTR;
+    buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    buf.memory = V4L2_MEMORY_USERPTR;
 
-        if (-1 == xioctl(fd, VIDIOC_DQBUF, &buf)) {
-            switch (errno) {
-                case EAGAIN:
-                    break;
-                case EIO:
-                    /* Could ignore EIO, see spec. */
+    if (-1 == xioctl(fd, VIDIOC_DQBUF, &buf)) {
+        switch (errno) {
+            case EAGAIN:
+                errno_exit(EAGAIN);
+                break;
+            case EIO:
+                /* Could ignore EIO, see spec. */
 
-                    /* fall through */
+                /* fall through */
 
-                default:
-                    errno_exit("VIDIOC_DQBUF");
-            }
-        } else {
-            for (i = 0; i < n_buffers; ++i)
-                if (buf.m.userptr == (unsigned long)buffers[i].start && buf.length == buffers[i].length)
-                    break;
-
-            assert(i < n_buffers);
-
-            if (-1 == xioctl(fd, VIDIOC_QBUF, &buf))
-                errno_exit("VIDIOC_QBUF");
-            return buf;
+            default:
+                errno_exit("VIDIOC_DQBUF");
         }
-        /* EAGAIN - continue select loop. */
+    } else {
+        for (i = 0; i < n_buffers; ++i)
+            if (buf.m.userptr == (unsigned long)buffers[i].start && buf.length == buffers[i].length)
+                break;
+
+        assert(i < n_buffers);
+
+        if (-1 == xioctl(fd, VIDIOC_QBUF, &buf))
+            errno_exit("VIDIOC_QBUF");
+        return buf;
     }
 }
 
