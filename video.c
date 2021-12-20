@@ -238,7 +238,8 @@ static void init_device(void) {
     }
 
     CLEAR(fmt);
-
+    fmt.fmt.pix.width = 3280;
+    fmt.fmt.pix.height = 2464;
     fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_JPEG;
     fmt.fmt.pix.field = V4L2_FIELD_INTERLACED;
 
@@ -296,14 +297,14 @@ void open_device(char *dev_name) {
 int main(int argc, char **argv) {
     FILE *fptr;
     dev_name = "/dev/video0";
-    fopen("test.jpg","w");
+    fopen("test.jpg", "w");
     struct v4l2_buffer frame;
 
     open_device(dev_name);
     init_device();
     start_capturing();
     frame = get_frame();
-    fwrite((void *) frame.m.userptr, frame.bytesused, 1, fptr);
+    fwrite((void *)frame.m.userptr, frame.bytesused, 1, fptr);
     stop_capturing();
     uninit_device();
     close_device();
