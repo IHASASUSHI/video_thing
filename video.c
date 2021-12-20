@@ -320,8 +320,7 @@ int main(int argc, char **argv) {
 
     open_device(dev_name);
     printf("recieved data\n");
-    for (int i = 0; i < 2; i++)
-        frame = get_frame();
+    frame = get_frame();
     printf("%d\n", frame.bytesused);
     fwrite((void *)frame.m.userptr, frame.bytesused, 1, fptr);
     printf("done writing\n");
