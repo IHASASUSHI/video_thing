@@ -190,6 +190,7 @@ static void init_device(void) {
     struct v4l2_crop crop;
     struct v4l2_format fmt;
     unsigned int min;
+
     if (-1 == xioctl(fd, VIDIOC_QUERYCAP, &cap)) {
         if (EINVAL == errno) {
             fprintf(stderr, "%s is no V4L2 device\\n",
@@ -321,13 +322,9 @@ int main(int argc, char **argv) {
     struct v4l2_buffer frame;
 
     open_device(dev_name);
-    init_device();
-    start_capturing();
     frame = get_frame();
     fwrite((void *)frame.m.userptr, frame.bytesused, 1, fptr);
     stop_capturing();
-    uninit_device();
-    close_device();
     fclose(fptr);
     fprintf(stderr, "\\n");
     return 0;
