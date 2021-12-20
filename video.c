@@ -279,7 +279,7 @@ static void init_device(void) {
 }
 
 static void close_device(void) {
-    printf("attempting closing capture");
+    printf("attempting closing capture\n");
     stop_capturing();
     uninit_device();
     if (-1 == close(fd))
