@@ -96,7 +96,7 @@ struct v4l2_buffer get_frame(void) {
                 break;
 
         assert(i < n_buffers);
-
+        printf("%d\n", buf.bytesused);
         if (-1 == xioctl(fd, VIDIOC_QBUF, &buf))
             errno_exit("VIDIOC_QBUF");
         return buf;
@@ -321,7 +321,6 @@ int main(int argc, char **argv) {
     printf("recieved data\n");
     for (int i = 0; i < 2; i++)
         frame = get_frame();
-    printf("%d", frame.bytesused);
     fwrite((void *)frame.m.userptr, frame.bytesused, 1, fptr);
     printf("done writing\n");
     close_device();
