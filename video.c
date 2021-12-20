@@ -239,19 +239,13 @@ static void init_device(void) {
 
     CLEAR(fmt);
 
-    fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    if (-1 == xioctl(fd, VIDIOC_G_FMT, &fmt))
-        errno_exit("VIDIOC_G_FMT");
+    fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_JPEG;
+    fmt.fmt.pix.field = V4L2_FIELD_INTERLACED;
+
+    if (-1 == xioctl(fd, VIDIOC_S_FMT, &fmt))
+        errno_exit("VIDIOC_S_FMT");
     /*
-        fmt.fmt.pix.width = 640;
-        fmt.fmt.pix.height = 480;
-        fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;
-        fmt.fmt.pix.field = V4L2_FIELD_INTERLACED;
-
-        if (-1 == xioctl(fd, VIDIOC_S_FMT, &fmt))
-            errno_exit("VIDIOC_S_FMT");
-
-        Note VIDIOC_S_FMT may change width and height.
+    Note VIDIOC_S_FMT may change width and height.
     */
     /* Buggy driver paranoia. */
     min = fmt.fmt.pix.width * 2;
@@ -297,4 +291,22 @@ void open_device(char *dev_name) {
     }
     init_device();
     start_capturing();
+}
+
+int main(int argc, char **argv) {
+    FILE *fptr;
+    dev_name = "/dev/video0";
+    fopen("test.jpg","w");
+    struct v4l2_buffer frame;
+
+    open_device(dev_name);
+    init_device();
+    start_capturing();
+    frame = get_frame();
+    fwrite(frame.m.userptr, frame.bytesused, 1, fptr);
+    stop_capturing();
+    uninit_device();
+    close_device();
+    fprintf(stderr, "\\n");
+    return 0;
 }
