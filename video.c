@@ -80,7 +80,7 @@ struct v4l2_buffer get_frame(void) {
     if (-1 == xioctl(fd, VIDIOC_DQBUF, &buf)) {
         switch (errno) {
             case EAGAIN:
-                errno_exit(EAGAIN);
+                errno_exit("EAGAIN");
                 break;
             case EIO:
                 /* Could ignore EIO, see spec. */
@@ -319,7 +319,8 @@ int main(int argc, char **argv) {
 
     open_device(dev_name);
     printf("recieved data\n");
-    frame = get_frame();
+    for (int i = 0; i < 2; i++)
+        frame = get_frame();
     printf("%d", frame.bytesused);
     fwrite((void *)frame.m.userptr, frame.bytesused, 1, fptr);
     printf("done writing\n");
