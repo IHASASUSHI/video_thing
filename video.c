@@ -321,8 +321,8 @@ int main(int argc, char **argv) {
     open_device(dev_name);
     printf("recieved data\n");
     frame = get_frame();
-    printf("%d\n", frame.length);
-    fwrite((void *)frame.m.userptr, frame.length, 1, fptr);
+    printf("%d\n", frame.bytesused);
+    fwrite((void *)frame.m.userptr, frame.bytesused, 1, fptr);
     printf("done writing\n");
     close_device();
     fclose(fptr);
