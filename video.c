@@ -190,7 +190,7 @@ static void init_device(void) {
     struct v4l2_crop crop;
     struct v4l2_format fmt;
     unsigned int min;
-    fprintf(dev_name);
+    printf(dev_name);
     if (-1 == xioctl(fd, VIDIOC_QUERYCAP, &cap)) {
         if (EINVAL == errno) {
             fprintf(stderr, "%s is no V4L2 device\\n",
