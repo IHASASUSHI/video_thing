@@ -190,7 +190,6 @@ static void init_device(void) {
     struct v4l2_crop crop;
     struct v4l2_format fmt;
     unsigned int min;
-    printf(dev_name);
     if (-1 == xioctl(fd, VIDIOC_QUERYCAP, &cap)) {
         if (EINVAL == errno) {
             fprintf(stderr, "%s is no V4L2 device\\n",
@@ -238,9 +237,10 @@ static void init_device(void) {
     }
 
     CLEAR(fmt);
+    fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     fmt.fmt.pix.width = 3280;
     fmt.fmt.pix.height = 2464;
-    fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;
+    fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_JPEG;
     fmt.fmt.pix.field = V4L2_FIELD_ANY;
 
     if (-1 == xioctl(fd, VIDIOC_S_FMT, &fmt)) {
