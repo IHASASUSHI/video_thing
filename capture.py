@@ -63,7 +63,7 @@ def libvideo_loader(name):
 
 def load_video():
     global _libvideo
-    _libvideo = libvideo_loader(os.path.dirname("libvideo_thing.so"))
+    _libvideo = libvideo_loader(os.path.abspath("libvideo_thing.so"))
 
 if __name__ == "__main__":
     load_video()
