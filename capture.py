@@ -70,6 +70,7 @@ if __name__ == "__main__":
     with open("test.jpg", "wb") as file:
         device = "/dev/video0".encode('utf-8')
         _libvideo.open_device(device)
+        print("get frame")
         frame = _libvideo.get_frame(device)
         file.write(frame.m.userptr[frame.bytesused])
         _libvideo.open_device(device)

@@ -80,6 +80,8 @@ struct v4l2_buffer get_frame(char *dev_name) {
     struct v4l2_buffer pastbuf;
     unsigned int i;
 
+    printf("video size: %d\n", size_videos);
+
     int index = hash_function(dev_name);
     if (index >= size_videos) {
         exit(1);
@@ -327,11 +329,14 @@ void open_device(char *dev_name) {
     int index = hash_function(dev_name);
     printf("%d %d\n", index, size_videos);
     printf("%s\n", dev_name);
+    printf("%d\n", videos == NULL);
     if (videos == NULL) {
         videos = calloc(4, sizeof(struct video));
         size_videos = 4;
     } else if (index >= size_videos)
         expand_and_zero_array(videos, index + 1);
+
+    printf("size %d\n", size_videos);
 
     videos[index].io = IO_METHOD_USERPTR;
 
