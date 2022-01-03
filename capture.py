@@ -37,11 +37,11 @@ class v4l2_buffer(Structure):
 
 exported_functions_video = [
     ("get_frame",
-     [c_wchar_p], v4l2_buffer),
+     [c_char_p], v4l2_buffer),
     ("open_device",
-     [c_wchar_p], None),
+     [c_char_p], None),
     ("close_device",
-     [c_wchar_p], None)]
+     [c_char_p], None)]
 
 def libvideo_loader(name):
     lib = cdll.LoadLibrary(name)
@@ -68,7 +68,8 @@ def load_video():
 if __name__ == "__main__":
     load_video()
     with open("test.jpg", "wb") as file:
-        _libvideo.open_device(c_wchar_p("/dev/video0"))
-        frame = _libvideo.get_frame(c_wchar_p("/dev/video0"))
+        device = "/dev/video0".encode('utf-8')
+        _libvideo.open_device(device)
+        frame = _libvideo.get_frame(device)
         file.write(frame.m.userptr[frame.bytesused])
-        _libvideo.open_device(c_wchar_p("/dev/video0"))
+        _libvideo.open_device(device)
