@@ -39,6 +39,7 @@ static unsigned int size_videos;
 static int hash_function(char *s) {
     int hash;
     while (1) {
+        printf("%s", s);
         if ((int)s[0] >= (int)'0' && (int)s[0] <= (int)'9' || s[0] == '\0')
             break;
         s++;
