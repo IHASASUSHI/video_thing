@@ -326,11 +326,11 @@ void open_device(char *dev_name) {
     struct stat st;
     int index = hash_function(dev_name);
     printf("%d %d\n", index, size_videos);
+    printf("%s\n", dev_name);
     if (videos == NULL) {
         videos = calloc(4, sizeof(struct video));
         size_videos = 4;
-    }
-    else if (index >= size_videos)
+    } else if (index >= size_videos)
         expand_and_zero_array(videos, index + 1);
 
     videos[index].io = IO_METHOD_USERPTR;
@@ -342,7 +342,7 @@ void open_device(char *dev_name) {
     }
 
     if (!S_ISCHR(st.st_mode)) {
-        fprintf(stderr, "%s is no devicen", dev_name);
+        fprintf(stderr, "%s is no device\n", dev_name);
         exit(EXIT_FAILURE);
     }
 
