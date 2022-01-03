@@ -125,10 +125,10 @@ struct v4l2_buffer get_frame(char *dev_name) {
                 errno_exit("VIDIOC_DQBUF");
         }
     } else {
-        for (i = 0; i < videos[index].n_buffers; ++i)
+        for (i = 0; i < videos[index].n_buffers; ++i) {
             if (buf.m.userptr == (unsigned long)videos[index].buffers[i].start && buf.length == videos[index].buffers[i].length)
                 break;
-
+        }
         assert(i < videos[index].n_buffers);
         pastbuf = buf;
         if (-1 == xioctl(videos[index].fd, VIDIOC_QBUF, &buf))
@@ -360,19 +360,4 @@ void open_device(char *dev_name) {
     }
     init_device(index);
     start_capturing(index);
-}
-
-
-int main(int argc, char **argv) {
-    FILE *fptr = fopen("test.jpg", "w");
-    char *dev_name = "/dev/video0";
-    struct v4l2_buffer frame;
-
-    open_device(dev_name);
-    frame = get_frame(dev_name);
-    fwrite((void *)frame.m.userptr, frame.bytesused, 1, fptr);
-    close_device(dev_name);
-    fclose(fptr);
-    fprintf(stderr, "\\n");
-    return 0;
 }
