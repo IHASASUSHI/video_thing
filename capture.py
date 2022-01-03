@@ -37,7 +37,7 @@ class v4l2_buffer(Structure):
 
 exported_functions_video = [
     ("get_frame",
-     [c_int], v4l2_buffer),
+     [c_wchar_p], v4l2_buffer),
     ("open_device",
      [c_wchar_p], None),
     ("close_device",

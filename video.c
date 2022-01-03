@@ -72,13 +72,18 @@ static int xioctl(int fh, int request, void *arg) {
     return r;
 }
 
-struct v4l2_buffer get_frame(int index) {
+struct v4l2_buffer get_frame(char *dev_name) {
     fd_set fds;
     struct timeval tv;
     int r;
     struct v4l2_buffer buf;
     struct v4l2_buffer pastbuf;
     unsigned int i;
+
+    int index = hash_function(dev_name);
+    if (index >= size_videos) {
+        exit(1);
+    }
 
     FD_ZERO(&fds);
     FD_SET(videos[index].fd, &fds);
