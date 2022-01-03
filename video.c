@@ -39,7 +39,6 @@ static unsigned int size_videos;
 static int hash_function(char *s) {
     int hash;
     while (1) {
-        printf("%s", s);
         if ((int)s[0] >= (int)'0' && (int)s[0] <= (int)'9' || s[0] == '\0')
             break;
         s++;
@@ -326,9 +325,13 @@ void close_device(char *dev_name) {
 void open_device(char *dev_name) {
     struct stat st;
     int index = hash_function(dev_name);
-    if (index >= size_videos) {
-        expand_and_zero_array(videos, index + 1);
+    printf("%d %d\n", index, size_videos);
+    if (videos == NULL) {
+        videos = calloc(4, sizeof(struct video));
+        size_videos = 4;
     }
+    else if (index >= size_videos)
+        expand_and_zero_array(videos, index + 1);
 
     videos[index].io = IO_METHOD_USERPTR;
 
