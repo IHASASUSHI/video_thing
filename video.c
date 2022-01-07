@@ -124,9 +124,12 @@ struct v4l2_buffer get_frame(char *dev_name) {
                 errno_exit("VIDIOC_DQBUF");
         }
     } else {
-        for (i = 0; i < videos[index].n_buffers; ++i)
+        for (i = 0; i < videos[index].n_buffers; ++i) {
+            printf("%d", i);
             if (buf.m.userptr == (unsigned long)videos[index].buffers[i].start && buf.length == videos[index].buffers[i].length)
                 break;
+        }
+        printf("n buffers %d", videos[index].n_buffers);
 
         assert(i < videos[index].n_buffers);
         if (-1 == xioctl(videos[index].fd, VIDIOC_QBUF, &buf))
