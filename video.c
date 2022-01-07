@@ -35,6 +35,7 @@ struct video {
 
 static struct video *videos;
 static unsigned int size_videos;
+static int index;
 
 static int hash_function(char *s) {
     int hash;
@@ -81,8 +82,8 @@ struct v4l2_buffer get_frame(char *dev_name) {
 
     printf("video size: %d\n", size_videos);
 
-    int index = hash_function(dev_name);
-    printf("hash done");
+    index = hash_function(dev_name);
+    printf("hash done\n");
 
     if (index >= size_videos) {
         exit(1);
@@ -90,14 +91,14 @@ struct v4l2_buffer get_frame(char *dev_name) {
 
     FD_ZERO(&fds);
     FD_SET(videos[index].fd, &fds);
-    printf("fd setup done");
+    printf("fd setup done\n");
 
     /* Timeout. */
     tv.tv_sec = 2;
     tv.tv_usec = 0;
 
     r = select(videos[index].fd + 1, &fds, NULL, NULL, &tv);
-    printf("select done");
+    printf("select done\n");
 
     if (-1 == r) {
         if (EINTR != errno)
@@ -129,11 +130,11 @@ struct v4l2_buffer get_frame(char *dev_name) {
         }
     } else {
         for (i = 0; i < videos[index].n_buffers; ++i) {
-            printf("%d", i);
+            printf("%d\n", i);
             if (buf.m.userptr == (unsigned long)videos[index].buffers[i].start && buf.length == videos[index].buffers[i].length)
                 break;
         }
-        printf("n buffers %d", videos[index].n_buffers);
+        printf("n buffers %d\n", videos[index].n_buffers);
 
         assert(i < videos[index].n_buffers);
         if (-1 == xioctl(videos[index].fd, VIDIOC_QBUF, &buf))
@@ -316,7 +317,7 @@ static void init_device(int index) {
 }
 
 void close_device(char *dev_name) {
-    int index = hash_function(dev_name);
+    index = hash_function(dev_name);
     if (index >= size_videos) {
         exit(1);
     }
@@ -331,7 +332,7 @@ void close_device(char *dev_name) {
 
 void open_device(char *dev_name) {
     struct stat st;
-    int index = hash_function(dev_name);
+    index = hash_function(dev_name);
     printf("%d %d\n", index, size_videos);
     printf("%s\n", dev_name);
     printf("%d\n", videos == NULL);
