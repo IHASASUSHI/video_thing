@@ -35,7 +35,7 @@ struct video {
 
 static struct video *videos;
 static unsigned int size_videos;
-static int index;
+static int idx;
 
 static int hash_function(char *s) {
     int hash;
@@ -82,22 +82,22 @@ struct v4l2_buffer get_frame(char *dev_name) {
 
     printf("video size: %d\n", size_videos);
 
-    index = hash_function(dev_name);
+    idx = hash_function(dev_name);
     printf("hash done\n");
 
-    if (index >= size_videos) {
+    if (idx >= size_videos) {
         exit(1);
     }
 
     FD_ZERO(&fds);
-    FD_SET(videos[index].fd, &fds);
+    FD_SET(videos[idx].fd, &fds);
     printf("fd setup done\n");
 
     /* Timeout. */
     tv.tv_sec = 2;
     tv.tv_usec = 0;
 
-    r = select(videos[index].fd + 1, &fds, NULL, NULL, &tv);
+    r = select(videos[idx].fd + 1, &fds, NULL, NULL, &tv);
     printf("select done\n");
 
     if (-1 == r) {
@@ -115,7 +115,7 @@ struct v4l2_buffer get_frame(char *dev_name) {
     buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     buf.memory = V4L2_MEMORY_USERPTR;
 
-    if (-1 == xioctl(videos[index].fd, VIDIOC_DQBUF, &buf)) {
+    if (-1 == xioctl(videos[idx].fd, VIDIOC_DQBUF, &buf)) {
         switch (errno) {
             case EAGAIN:
                 errno_exit("EAGAIN");
@@ -129,60 +129,60 @@ struct v4l2_buffer get_frame(char *dev_name) {
                 errno_exit("VIDIOC_DQBUF");
         }
     } else {
-        for (i = 0; i < videos[index].n_buffers; ++i) {
+        for (i = 0; i < videos[idx].n_buffers; ++i) {
             printf("%d\n", i);
-            if (buf.m.userptr == (unsigned long)videos[index].buffers[i].start && buf.length == videos[index].buffers[i].length)
+            if (buf.m.userptr == (unsigned long)videos[idx].buffers[i].start && buf.length == videos[idx].buffers[i].length)
                 break;
         }
-        printf("n buffers %d\n", videos[index].n_buffers);
+        printf("n buffers %d\n", videos[idx].n_buffers);
 
-        assert(i < videos[index].n_buffers);
-        if (-1 == xioctl(videos[index].fd, VIDIOC_QBUF, &buf))
+        assert(i < videos[idx].n_buffers);
+        if (-1 == xioctl(videos[idx].fd, VIDIOC_QBUF, &buf))
             errno_exit("VIDIOC_QBUF");
         return buf;
     }
 }
 
-static void stop_capturing(int index) {
+static void stop_capturing(int idx) {
     enum v4l2_buf_type type;
 
     type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    if (-1 == xioctl(videos[index].fd, VIDIOC_STREAMOFF, &type))
+    if (-1 == xioctl(videos[idx].fd, VIDIOC_STREAMOFF, &type))
         errno_exit("VIDIOC_STREAMOFF");
 }
 
-static void start_capturing(int index) {
+static void start_capturing(int idx) {
     unsigned int i;
     enum v4l2_buf_type type;
 
-    for (i = 0; i < videos[index].n_buffers; ++i) {
+    for (i = 0; i < videos[idx].n_buffers; ++i) {
         struct v4l2_buffer buf;
 
         CLEAR(buf);
         buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
         buf.memory = V4L2_MEMORY_USERPTR;
         buf.index = i;
-        buf.m.userptr = (unsigned long)videos[index].buffers[i].start;
-        buf.length = videos[index].buffers[i].length;
+        buf.m.userptr = (unsigned long)videos[idx].buffers[i].start;
+        buf.length = videos[idx].buffers[i].length;
 
-        if (-1 == xioctl(videos[index].fd, VIDIOC_QBUF, &buf))
+        if (-1 == xioctl(videos[idx].fd, VIDIOC_QBUF, &buf))
             errno_exit("VIDIOC_QBUF");
     }
     type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    if (-1 == xioctl(videos[index].fd, VIDIOC_STREAMON, &type))
+    if (-1 == xioctl(videos[idx].fd, VIDIOC_STREAMON, &type))
         errno_exit("VIDIOC_STREAMON");
 }
 
-static void uninit_device(int index) {
+static void uninit_device(int idx) {
     unsigned int i;
 
-    for (i = 0; i < videos[index].n_buffers; ++i)
-        free(videos[index].buffers[i].start);
+    for (i = 0; i < videos[idx].n_buffers; ++i)
+        free(videos[idx].buffers[i].start);
 
-    free(videos[index].buffers);
+    free(videos[idx].buffers);
 }
 
-static void init_userp(unsigned int buffer_size, int index) {
+static void init_userp(unsigned int buffer_size, int idx) {
     struct v4l2_requestbuffers req;
 
     CLEAR(req);
@@ -191,46 +191,46 @@ static void init_userp(unsigned int buffer_size, int index) {
     req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     req.memory = V4L2_MEMORY_USERPTR;
 
-    if (-1 == xioctl(videos[index].fd, VIDIOC_REQBUFS, &req)) {
+    if (-1 == xioctl(videos[idx].fd, VIDIOC_REQBUFS, &req)) {
         if (EINVAL == errno) {
             fprintf(stderr, "%s does not support "
                             "user pointer i/on",
-                    videos[index].dev_name);
+                    videos[idx].dev_name);
             exit(EXIT_FAILURE);
         } else {
             errno_exit("VIDIOC_REQBUFS");
         }
     }
 
-    videos[index].buffers = calloc(4, sizeof(*videos[index].buffers));
+    videos[idx].buffers = calloc(4, sizeof(*videos[idx].buffers));
 
-    if (!videos[index].buffers) {
+    if (!videos[idx].buffers) {
         fprintf(stderr, "Out of memory\\n");
         exit(EXIT_FAILURE);
     }
 
-    for (videos[index].n_buffers = 0; videos[index].n_buffers < 4; ++videos[index].n_buffers) {
-        videos[index].buffers[videos[index].n_buffers].length = buffer_size;
-        videos[index].buffers[videos[index].n_buffers].start = malloc(buffer_size);
+    for (videos[idx].n_buffers = 0; videos[idx].n_buffers < 4; ++videos[idx].n_buffers) {
+        videos[idx].buffers[videos[idx].n_buffers].length = buffer_size;
+        videos[idx].buffers[videos[idx].n_buffers].start = malloc(buffer_size);
 
-        if (!videos[index].buffers[videos[index].n_buffers].start) {
+        if (!videos[idx].buffers[videos[idx].n_buffers].start) {
             fprintf(stderr, "Out of memory\\n");
             exit(EXIT_FAILURE);
         }
     }
 }
 
-static void init_device(int index) {
+static void init_device(int idx) {
     struct v4l2_capability cap;
     struct v4l2_cropcap cropcap;
     struct v4l2_crop crop;
     struct v4l2_format fmt;
     unsigned int min;
 
-    if (-1 == xioctl(videos[index].fd, VIDIOC_QUERYCAP, &cap)) {
+    if (-1 == xioctl(videos[idx].fd, VIDIOC_QUERYCAP, &cap)) {
         if (EINVAL == errno) {
             fprintf(stderr, "%s is no V4L2 device\\n",
-                    videos[index].dev_name);
+                    videos[idx].dev_name);
             exit(EXIT_FAILURE);
         } else {
             errno_exit("VIDIOC_QUERYCAP");
@@ -239,13 +239,13 @@ static void init_device(int index) {
 
     if (!(cap.capabilities & V4L2_CAP_VIDEO_CAPTURE)) {
         fprintf(stderr, "%s is no video capture device\\n",
-                videos[index].dev_name);
+                videos[idx].dev_name);
         exit(EXIT_FAILURE);
     }
 
     if (!(cap.capabilities & V4L2_CAP_STREAMING)) {
         fprintf(stderr, "%s does not support streaming i/o\\n",
-                videos[index].dev_name);
+                videos[idx].dev_name);
         exit(EXIT_FAILURE);
     }
 
@@ -255,11 +255,11 @@ static void init_device(int index) {
 
     cropcap.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
-    if (0 == xioctl(videos[index].fd, VIDIOC_CROPCAP, &cropcap)) {
+    if (0 == xioctl(videos[idx].fd, VIDIOC_CROPCAP, &cropcap)) {
         crop.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
         crop.c = cropcap.defrect; /* reset to default */
 
-        if (-1 == xioctl(videos[index].fd, VIDIOC_S_CROP, &crop)) {
+        if (-1 == xioctl(videos[idx].fd, VIDIOC_S_CROP, &crop)) {
             switch (errno) {
                 case EINVAL:
                     /* Cropping not supported. */
@@ -280,7 +280,7 @@ static void init_device(int index) {
     fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_JPEG;
     fmt.fmt.pix.field = V4L2_FIELD_INTERLACED;
 
-    if (-1 == xioctl(videos[index].fd, VIDIOC_S_FMT, &fmt)) {
+    if (-1 == xioctl(videos[idx].fd, VIDIOC_S_FMT, &fmt)) {
         switch (errno) {
             case EAGAIN:
                 printf("EAGAIN\n");
@@ -313,38 +313,38 @@ static void init_device(int index) {
     if (fmt.fmt.pix.sizeimage < min)
         fmt.fmt.pix.sizeimage = min;
 
-    init_userp(fmt.fmt.pix.sizeimage, index);
+    init_userp(fmt.fmt.pix.sizeimage, idx);
 }
 
 void close_device(char *dev_name) {
-    index = hash_function(dev_name);
-    if (index >= size_videos) {
+    idx = hash_function(dev_name);
+    if (idx >= size_videos) {
         exit(1);
     }
-    stop_capturing(index);
+    stop_capturing(idx);
     printf("closed capture\n");
-    uninit_device(index);
-    if (-1 == close(videos[index].fd))
+    uninit_device(idx);
+    if (-1 == close(videos[idx].fd))
         errno_exit("close");
 
-    videos[index].fd = -1;
+    videos[idx].fd = -1;
 }
 
 void open_device(char *dev_name) {
     struct stat st;
-    index = hash_function(dev_name);
-    printf("%d %d\n", index, size_videos);
+    idx = hash_function(dev_name);
+    printf("%d %d\n", idx, size_videos);
     printf("%s\n", dev_name);
     printf("%d\n", videos == NULL);
     if (videos == NULL) {
         videos = calloc(4, sizeof(struct video));
         size_videos = 4;
-    } else if (index >= size_videos)
-        expand_and_zero_array(videos, index + 1);
+    } else if (idx >= size_videos)
+        expand_and_zero_array(videos, idx + 1);
 
     printf("size %d\n", size_videos);
 
-    videos[index].io = IO_METHOD_USERPTR;
+    videos[idx].io = IO_METHOD_USERPTR;
 
     if (-1 == stat(dev_name, &st)) {
         fprintf(stderr, "Cannot identify '%s': %d, %s\\n",
@@ -357,15 +357,15 @@ void open_device(char *dev_name) {
         exit(EXIT_FAILURE);
     }
 
-    videos[index].fd = open(dev_name, O_RDWR /* required */ | O_NONBLOCK, 0);
+    videos[idx].fd = open(dev_name, O_RDWR /* required */ | O_NONBLOCK, 0);
 
-    if (-1 == videos[index].fd) {
+    if (-1 == videos[idx].fd) {
         fprintf(stderr, "Cannot open '%s': %d, %s\\n",
                 dev_name, errno, strerror(errno));
         exit(EXIT_FAILURE);
     }
-    init_device(index);
-    start_capturing(index);
+    init_device(idx);
+    start_capturing(idx);
 }
 
 int main(int argc, char **argv) {
