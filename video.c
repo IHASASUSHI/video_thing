@@ -82,18 +82,22 @@ struct v4l2_buffer get_frame(char *dev_name) {
     printf("video size: %d\n", size_videos);
 
     int index = hash_function(dev_name);
+    printf("hash done");
+
     if (index >= size_videos) {
         exit(1);
     }
 
     FD_ZERO(&fds);
     FD_SET(videos[index].fd, &fds);
+    printf("fd setup done");
 
     /* Timeout. */
     tv.tv_sec = 2;
     tv.tv_usec = 0;
 
     r = select(videos[index].fd + 1, &fds, NULL, NULL, &tv);
+    printf("select done");
 
     if (-1 == r) {
         if (EINTR != errno)
