@@ -134,7 +134,7 @@ struct v4l2_buffer get_frame(char *dev_name) {
             if (buf.m.userptr == (unsigned long)videos[idx].buffers[i].start && buf.length == videos[idx].buffers[i].length)
                 break;
         }
-        printf("n buffers %d\n", videos[idx].n_buffers);
+        printf("ith buffer is %d\n", i);
 
         assert(i < videos[idx].n_buffers);
         //if (-1 == xioctl(videos[idx].fd, VIDIOC_QBUF, &buf))
@@ -143,7 +143,6 @@ struct v4l2_buffer get_frame(char *dev_name) {
         printf("assertion done\n");
 
         return buf;
-        printf("what the fuck?\n");
     }
 }
 
@@ -339,7 +338,7 @@ void open_device(char *dev_name) {
     idx = hash_function(dev_name);
     if (videos == NULL) {
         printf("callocing video0s\n");
-        videos = calloc(4, sizeof(struct video));
+        videos = calloc(4, sizeof(struct video) + 1);
         size_videos = 4;
     } else if (idx >= size_videos)
         expand_and_zero_array(videos, idx + 1);
