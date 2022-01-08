@@ -139,6 +139,9 @@ struct v4l2_buffer get_frame(char *dev_name) {
         assert(i < videos[idx].n_buffers);
         if (-1 == xioctl(videos[idx].fd, VIDIOC_QBUF, &buf))
             errno_exit("VIDIOC_QBUF");
+
+        printf("assertion done\n");
+
         return buf;
     }
 }
