@@ -137,8 +137,8 @@ struct v4l2_buffer get_frame(char *dev_name) {
         printf("n buffers %d\n", videos[idx].n_buffers);
 
         assert(i < videos[idx].n_buffers);
-        if (-1 == xioctl(videos[idx].fd, VIDIOC_QBUF, &buf))
-            errno_exit("VIDIOC_QBUF");
+        //if (-1 == xioctl(videos[idx].fd, VIDIOC_QBUF, &buf))
+        //   errno_exit("VIDIOC_QBUF");
 
         printf("assertion done\n");
 
@@ -336,16 +336,12 @@ void close_device(char *dev_name) {
 void open_device(char *dev_name) {
     struct stat st;
     idx = hash_function(dev_name);
-    printf("%d %d\n", idx, size_videos);
-    printf("%s\n", dev_name);
-    printf("%d\n", videos == NULL);
     if (videos == NULL) {
+        printf("callocing videos");
         videos = calloc(4, sizeof(struct video));
         size_videos = 4;
     } else if (idx >= size_videos)
         expand_and_zero_array(videos, idx + 1);
-
-    printf("size %d\n", size_videos);
 
     videos[idx].io = IO_METHOD_USERPTR;
 
