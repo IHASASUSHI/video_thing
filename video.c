@@ -143,6 +143,7 @@ struct v4l2_buffer get_frame(char *dev_name) {
         printf("assertion done\n");
 
         return buf;
+        printf("what the fuck?\n");
     }
 }
 
@@ -337,7 +338,7 @@ void open_device(char *dev_name) {
     struct stat st;
     idx = hash_function(dev_name);
     if (videos == NULL) {
-        printf("callocing videos");
+        printf("callocing video0s\n");
         videos = calloc(4, sizeof(struct video));
         size_videos = 4;
     } else if (idx >= size_videos)
