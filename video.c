@@ -73,13 +73,12 @@ static int xioctl(int fh, int request, void *arg) {
     return r;
 }
 
-struct v4l2_buffer get_frame(char *dev_name) {
+struct v4l2_buffer get_frame_user_ptr(char *dev_name) {
     fd_set fds;
     struct timeval tv;
     int r;
     struct v4l2_buffer buf;
     unsigned int i;
-
     printf("video size: %d\n", size_videos);
 
     idx = hash_function(dev_name);
@@ -373,7 +372,7 @@ int main(int argc, char **argv) {
     struct v4l2_buffer frame;
 
     open_device(dev_name);
-    frame = get_frame(dev_name);
+    frame = get_frame_user_ptr(dev_name);
     fwrite((void *)frame.m.userptr, frame.bytesused, 1, fptr);
     close_device(dev_name);
     fclose(fptr);

@@ -2,15 +2,31 @@ from ctypes import *
 import os
 
 class timeval(Structure):
-    pass
+    _fields_ = [("tv_sec",			c_long),
+        ("tv_usec",			c_long)]
 
 class v4l2_timecode(Structure):
-    pass
+    _fields_ = [("type",			c_uint32),
+        ("flags",			c_uint32),
+        ("frames",			c_uint8),
+        ("seconds",			c_uint8),
+        ("minutes",			c_uint8),
+        ("hours",			c_uint8),
+        ("userbits",			c_char * 4)]
+
+class v4l2_plane_memory(Union):
+    _fields_ = [("mem_offset",			c_uint32),
+        ("userptr",			c_ulong),
+        ("fd",			c_int32)]
 
 class v4l2_plane(Structure):
-    pass
+    _fields_ = [("bytesused",			c_uint32),
+        ("length",			c_uint32),
+        ("m",			v4l2_plane_memory),
+        ("data_offset",			c_uint32),
+        ("reserved",			c_uint32 * 11)]
 
-class memory(Union):
+class v4l2_buffer_memory(Union):
     _fields_ = [("offset",			c_uint32),
         ("userptr",			c_ulong),
         ("planes",			POINTER(v4l2_plane)),
@@ -30,13 +46,13 @@ class v4l2_buffer(Structure):
     ("timecode", v4l2_timecode),
     ("sequence",			c_uint32),
     ("memory",			c_uint32),
-    ("m",			memory),
+    ("m",			v4l2_buffer_memory),
     ("length",			c_uint32),
     ("reserved2",			c_uint32),
 	("request", request)]
 
 exported_functions_video = [
-    ("get_frame",
+    ("get_frame_user_ptr",
      [c_char_p], v4l2_buffer),
     ("open_device",
      [c_char_p], None),
@@ -71,6 +87,6 @@ if __name__ == "__main__":
         device = "/dev/video0".encode('utf-8')
         _libvideo.open_device(device)
         print("get frame")
-        frame = _libvideo.get_frame(device)
+        frame = _libvideo.get_frame_user_ptr(device)
         file.write(frame.m.userptr[frame.bytesused])
         _libvideo.open_device(device)
