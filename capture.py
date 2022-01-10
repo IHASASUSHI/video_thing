@@ -28,7 +28,7 @@ class v4l2_plane(Structure):
 
 class v4l2_buffer_memory(Union):
     _fields_ = [("offset",			c_uint32),
-        ("userptr",			c_ulong),
+        ("userptr",			POINTER(c_ulong)),
         ("planes",			POINTER(v4l2_plane)),
         ("fd",			c_int32)]
 
