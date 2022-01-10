@@ -88,5 +88,5 @@ if __name__ == "__main__":
         _libvideo.open_device(device)
         print("get frame")
         frame = _libvideo.get_frame_user_ptr(device)
-        file.write(frame.m.userptr[frame.bytesused])
+        file.write(frame.m.userptr[:frame.bytesused])
         _libvideo.open_device(device)
