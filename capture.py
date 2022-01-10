@@ -89,6 +89,5 @@ if __name__ == "__main__":
         _libvideo.open_device(device)
         print("get frame")
         frame = _libvideo.get_frame_user_ptr(device)
-        print(getsizeof(cast(frame.m.userptr, POINTER(c_ulong))[0]))
-        file.write([i.to_bytes(4, 'big') for i in cast(frame.m.userptr, POINTER(c_ulong))[:frame.bytesused//4]])
+        file.write([i.to_bytes(8, 'big') for i in cast(frame.m.userptr, POINTER(c_ulong))[:frame.bytesused//8]])
         _libvideo.open_device(device)
