@@ -28,7 +28,7 @@ class v4l2_plane(Structure):
 
 class v4l2_buffer_memory(Union):
     _fields_ = [("offset",			c_uint32),
-        ("userptr",			POINTER(c_ulong)),
+        ("userptr",			c_ulong),
         ("planes",			POINTER(v4l2_plane)),
         ("fd",			c_int32)]
 
@@ -88,5 +88,5 @@ if __name__ == "__main__":
         _libvideo.open_device(device)
         print("get frame")
         frame = _libvideo.get_frame_user_ptr(device)
-        file.write(frame.m.userptr[:frame.bytesused])
+        file.write(cast(frame.m.userptr[:frame.bytesused], POINTER(c_ulong)))
         _libvideo.open_device(device)
