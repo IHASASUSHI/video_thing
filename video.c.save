@@ -1,0 +1,123 @@
+#include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include <errno.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+#include <linux/videodev2.h>
+
+#define CLEAR(x) memset(&(x), 0, sizeof(x))
+
+enum io_method {
+    IO_METHOD_USERPTR
+};
+
+struct buffer {
+    void *start;
+    size_t length;
+};
+
+struct video {
+    struct buffer *buffers;
+    unsigned int n_buffers;
+    char *dev_name;
+    int fd;            //-1
+    enum io_method io; // IO_METHOD_USERPTR
+};
+
+static struct video *videos;
+static unsigned int size_videos;
+
+static int hash_function(char *s) {
+    int hash;
+    while (1) {
+        if ((int)s[0] >= (int)'0' && (int)s[0] <= (int)'9' || s[0] == '\0')
+            break;
+        s++;
+    }
+    hash = atoi(s);
+    return hash;
+}
+
+static int expand_and_zero_array(struct video *videos, int size) {
+    struct video *newarray = realloc(videos, size * sizeof(struct video));
+    if (!newarray) {
+        errno = 1;
+        return -1;
+    }
+    videos = newarray;
+    return 0;
+}
+
+static void errno_exit(const char *s) {
+    fprintf(stderr, "%s error %d, %s\\n", s, errno, strerror(errno));
+    exit(EXIT_FAILURE);
+}
+
+static int xioctl(int fh, int request, void *arg) {
+    int r;
+
+    do {
+        r = ioctl(fh, request, arg);
+    } while (-1 == r && EINTR == errno);
+
+    return r;
+}
+
+struct v4l2_buffer get_frame(char *dev_name) {
+    fd_set fds;
+    struct timeval tv;
+    int r;
+    struct v4l2_buffer buf;
+    struct v4l2_buffer pastbuf;
+    unsigned int i;
+
+    printf("video size: %d\n", size_videos);
+
+    int index = hash_function(dev_name);
+    if (index >= size_videos) {
+        exit(1);
+    }
+
+    FD_ZERO(&fds);
+    FD_SET(videos[index].fd, &fds);
+
+    /* Timeout. */
+    tv.tv_sec = 2;
+    tv.tv_usec = 0;
+
+    r = select(videos[index].fd + 1, &fds, NULL, NULL, &tv);
+
+    if (-1 == r) {
+        if (EINTR != errno)
+            errno_exit("select");
+    }
+
+    if (0 == r) {
+        fprintf(stderr, "select timeout\\n");
+        exit(EXIT_FAILURE);
+    }
+
+    CLEAR(buf);
+
+    buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    buf.memory = V4L2_MEMORY_USERPTR;
+
+    if (-1 == xioctl(videos[index].fd, VIDIOC_DQBUF, &buf)) {
+        switch (errno) {
+            case EAGAIN:
+                errno_exit("EAGAIN");
+                break;
+            case EIO:
+                /* Could ignore EIO, see spec. */
+
+                /* fall through */
+
