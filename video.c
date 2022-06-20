@@ -368,7 +368,7 @@ void open_device(char *dev_name) {
 
 int main(int argc, char **argv) {
     FILE *fptr = fopen("test.jpg", "w");
-    char *dev_name = "/dev/video0";
+    char *dev_name = "/dev/video10";
     struct v4l2_buffer frame;
 
     open_device(dev_name);
