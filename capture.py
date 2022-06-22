@@ -85,7 +85,7 @@ def load_video():
 if __name__ == "__main__":
     load_video()
     with open("test.jpg", "wb") as file:
-        device = "/dev/video0".encode('utf-8')
+        device = "/dev/video1".encode('utf-8')
         _libvideo.open_device(device)
         print("get frame")
         frame = _libvideo.get_frame_user_ptr(device)

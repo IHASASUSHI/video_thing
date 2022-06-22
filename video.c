@@ -336,7 +336,7 @@ void open_device(char *dev_name) {
     struct stat st;
     idx = hash_function(dev_name);
     if (videos == NULL) {
-        printf("callocing video0s\n");
+        printf("callocing video's\n");
         videos = calloc(4, sizeof(struct video) + 1);
         size_videos = 4;
     } else if (idx >= size_videos)
@@ -368,7 +368,7 @@ void open_device(char *dev_name) {
 
 int main(int argc, char **argv) {
     FILE *fptr = fopen("test.jpg", "w");
-    char *dev_name = "/dev/video10";
+    char *dev_name = "/dev/video1";
     struct v4l2_buffer frame;
 
     open_device(dev_name);
