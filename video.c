@@ -59,7 +59,7 @@ static int expand_and_zero_array(struct video *videos, int size) {
 }
 
 static void errno_exit(const char *s) {
-    fprintf(stderr, "%s error %d, %s\\n", s, errno, strerror(errno));
+    fprintf(stderr, "%s error %d, %s\n", s, errno, strerror(errno));
     exit(EXIT_FAILURE);
 }
 
@@ -277,8 +277,8 @@ static void init_device(int idx) {
 
     CLEAR(fmt);
     fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    fmt.fmt.pix.width = 3280;
-    fmt.fmt.pix.height = 2464;
+    fmt.fmt.pix.width = 16376;
+    fmt.fmt.pix.height = 16376;
     fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_JPEG;
     fmt.fmt.pix.field = V4L2_FIELD_INTERLACED;
 
