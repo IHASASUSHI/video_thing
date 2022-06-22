@@ -281,7 +281,7 @@ static void init_device(int idx) {
     //fmt.fmt.pix.width = 16376;
     //fmt.fmt.pix.height = 16376;
     fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_JPEG;
-    fmt.fmt.pix.field = V4L2_FIELD_INTERLACED;
+    //fmt.fmt.pix.field = V4L2_FIELD_INTERLACED;
 
     if (-1 == xioctl(videos[idx].fd, VIDIOC_S_FMT, &fmt)) {
         switch (errno) {
