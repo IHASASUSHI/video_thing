@@ -276,9 +276,9 @@ static void init_device(int idx) {
     }
 
     CLEAR(fmt);
-    fmt.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
-    fmt.fmt.pix.width = 16376;
-    fmt.fmt.pix.height = 16376;
+    fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    //fmt.fmt.pix.width = 16376;
+    //fmt.fmt.pix.height = 16376;
     fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_JPEG;
     fmt.fmt.pix.field = V4L2_FIELD_INTERLACED;
 
